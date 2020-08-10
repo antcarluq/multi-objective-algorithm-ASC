@@ -32,25 +32,27 @@ from vector import Vector_Peso
 #matriz_vector_peso.append(Vector_Peso(4, 3, []))
 
 # Metodo inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def inicializar_vectores_peso_old_version(N=10):
-    i = 1
+def inicializar_vectores_peso_old_version(N=2):
+    i = 0
     lista_vectores_peso = []
     a = 0.5
     b = 0.5
-    lista_vectores_peso.append(Vector_Peso(a, b, []))
+    if N%2 == 1:
+        i=1
+        lista_vectores_peso.append(Vector_Peso(a, b, []))
     while i < N:
         aux = 1/N
         if i%2 == 0:
             a = a + aux
-            lista_vectores_peso.append(Vector_Peso(a, 1-a, []))
+            lista_vectores_peso.append(Vector_Peso(round(a, 2), round(1-a, 2), []))
         else:
             b = b + aux
-            lista_vectores_peso.append(Vector_Peso(1-b, b, []))
+            lista_vectores_peso.append(Vector_Peso(round(1-b, 2), round(b, 2), []))
         i = i + 1
     for aux in lista_vectores_peso:
         print("Vector: " + str(aux.x) + " " + str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
 
-#inicializar_vectores_peso_old_version()
+inicializar_vectores_peso_old_version()
 # Metodo mejorado inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
 def inicializar_vectores_peso(N=2):
     i = 1
@@ -64,7 +66,7 @@ def inicializar_vectores_peso(N=2):
     for aux in lista_vectores_peso:
         print("Vector: " + str(aux.x) + " " + str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
 
-inicializar_vectores_peso()
+#inicializar_vectores_peso()
 #########################################################################
 
 # Metodo para encontrar los T vectores vecinos mas cercanos
