@@ -50,8 +50,9 @@ def inicializar_vectores_peso_old_version(N=10):
     for aux in lista_vectores_peso:
         print("Vector: " + str(aux.x) + " " + str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
 
+#inicializar_vectores_peso_old_version()
 # Metodo mejorado inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def inicializar_vectores_peso(N=10):
+def inicializar_vectores_peso(N=2):
     i = 1
     lista_vectores_peso = []
     a = 1/N
