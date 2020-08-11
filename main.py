@@ -1,38 +1,8 @@
 import numpy as numpy
 from vector import Vector_Peso
 
-# Tengo que crear N Vectores Peso
-# Debiéndose cumplir que la suma de los componentes de cada vector es la unidad
-# Dichos vectores peso están distribuidos uniformemente, simplemente significa que los vectores están equiespaciados,
-# donde la distancia se define de forma euclídea
-
-# Basicamente aqui quiero que se hay 4 subproblemas tener 4 vectores de la siguiente forma:
-#a = numpy.array((1, 2))
-#b = numpy.array((2, 3))
-#dist = numpy.linalg.norm(a-b)
-#print(dist)
-
-#T = 2
-#N = 4
-#i = 0
-#matriz_vector_peso = []
-#while i < N:
-#    matriz_vector_peso.append(Vector_Peso(0.2, 0.8, []))
-#    i = i + 1
-
-#print(matriz_vector_peso)
-# V1 = (0.1,0.9) | V2 = (0.9,0.1) | V3 = (0.4,0.6) | V4 = (0.6,0.4) *Suponiendo que estos vectores estan equiespaciados
-
-# De momento solo quiero el mas cercano del primero
-
-#matriz_vector_peso = []
-#matriz_vector_peso.append(Vector_Peso(1, 1, []))
-#matriz_vector_peso.append(Vector_Peso(1, 2, []))
-#matriz_vector_peso.append(Vector_Peso(5, 2, []))
-#matriz_vector_peso.append(Vector_Peso(4, 3, []))
-
 # Metodo inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def inicializar_vectores_peso_old_version(N=2):
+def inicializar_vectores_peso(N):
     i = 0
     lista_vectores_peso = []
     a = 0.5
@@ -51,10 +21,12 @@ def inicializar_vectores_peso_old_version(N=2):
         i = i + 1
     for aux in lista_vectores_peso:
         print("Vector: " + str(aux.x) + " " + str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
+    return lista_vectores_peso
+#######################################################################################################
 
-inicializar_vectores_peso_old_version()
+
 # Metodo mejorado inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def inicializar_vectores_peso(N=2):
+def inicializar_vectores_peso_old_version(N):
     i = 1
     lista_vectores_peso = []
     a = 1/N
@@ -65,9 +37,9 @@ def inicializar_vectores_peso(N=2):
         i = i + 1
     for aux in lista_vectores_peso:
         print("Vector: " + str(aux.x) + " " + str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
-
-#inicializar_vectores_peso()
+    return lista_vectores_peso
 #########################################################################
+
 
 # Metodo para encontrar los T vectores vecinos mas cercanos
 def calcular_vecinos(self, T, lista_vectores_peso):
@@ -93,5 +65,24 @@ def calcular_vecinos(self, T, lista_vectores_peso):
 
     for aux in lista_vectores_peso:
         print("Vector: " + str(aux.x) +" "+ str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
-
 ########################################################################3
+
+
+# Algoritmo multiobjetivo basado en agregacion
+########################################################################
+def algorithm(N, T):
+    lista_vectores_peso = inicializar_vectores_peso(N)
+    calcular_vecinos(T, N, lista_vectores_peso)
+    # A continuación inicializamos una población de N individuos y evaluamos sus prestaciones
+    # Inicializamos un punto de referencia 1 (, , )T
+    # m zz z =  donde i z es
+    # el mejor valor encontrado de cada objetivo i f .
+    i=0
+    while i < N:
+        #Reproduccion
+        #Evaluacion
+        #Actualizacion del punto de referencia
+        #Actualizacion de vecinos
+        i = i + 1
+
+########################################################################
