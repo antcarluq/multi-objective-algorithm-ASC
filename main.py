@@ -1,4 +1,6 @@
 import numpy as numpy
+import random
+import math
 from vector import Vector_Peso
 
 # Metodo inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
@@ -67,16 +69,27 @@ def calcular_vecinos(self, T, lista_vectores_peso):
         print("Vector: " + str(aux.x) +" "+ str(aux.y) + " y sus vecinos son: " + str(aux.vecinos))
 ########################################################################3
 
+# TODO creo que estos no son numeros sino que son componentes
+# Metodo para generar la población inicial #TODO Posibilidad de utilizar otro tipo de generacion de numeros aleatorios
+def generar_poblacion(N):
+    poblacion = []
+    for i in range(N):
+        poblacion.append(random.randint(0, 10)) #TODO ¿Tienen que estar limitados estos numeros? ¿Quizas por el espacio de busqueda? ¿Se pueden repetir los numeros?
+    return poblacion
+
+def evaluar_poblacion(poblacion):
+    for individuo in poblacion:
+        None # Aqui hay que evaluar pero entiendo que es en funcion del problema ¿De donde recibo la funcion para evaluar?
+
 
 # Algoritmo multiobjetivo basado en agregacion
 ########################################################################
 def algorithm(N, T):
     lista_vectores_peso = inicializar_vectores_peso(N)
     calcular_vecinos(T, N, lista_vectores_peso)
-    # A continuación inicializamos una población de N individuos y evaluamos sus prestaciones
-    # Inicializamos un punto de referencia 1 (, , )T
-    # m zz z =  donde i z es
-    # el mejor valor encontrado de cada objetivo i f .
+    poblacion = generar_poblacion(N)
+    evaluar_poblacion(poblacion)
+    # Inicializa la lista de puntos de referencia donde zi es el mejor valor de valor del objetivo fi encontrado. Se ira actualizando
     i=0
     while i < N:
         #Reproduccion
@@ -86,3 +99,16 @@ def algorithm(N, T):
         i = i + 1
 
 ########################################################################
+
+def test_zdt3(poblacion, N):
+    aux = 0
+    for i in range(N):
+        aux = aux + poblacion[i]
+
+    y = []
+    y[0] = poblacion[0]
+    g = 1 + ((9 * aux) / (N - 1));
+    h = 1 - math.sqrt(poblacion[0] / g) - (poblacion[0] / g) * math.sin(10 * math.pi * poblacion[0])
+    y[1] = g * h
+
+    return y
