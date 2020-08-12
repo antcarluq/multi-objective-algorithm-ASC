@@ -73,7 +73,7 @@ def calcular_vecinos(self, T, lista_vectores_peso):
 # Metodo para generar la población inicial #TODO Posibilidad de utilizar otro tipo de generacion de numeros aleatorios
 def generar_poblacion(N):
     poblacion = []
-    for i in range(N):
+    for i in range(N): #Tiene que estar entre 1 y 0 usar seed y que siempre sean los mismos los numeros aleatorios
         poblacion.append(random.randint(0, 10)) #TODO ¿Tienen que estar limitados estos numeros? ¿Quizas por el espacio de busqueda? ¿Se pueden repetir los numeros?
     return poblacion
 
