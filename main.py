@@ -61,12 +61,12 @@ def calcular_vecinos(self, T, subproblems):
             list_subproblem_dist.append(numpy.array((potential_neighbour, dist)))
 
             # Los ordenado de menor a mayor segun la distancia y me quedo con los T primeros
-            list_subproblem_dist.sort(key=lambda tup: tup[1])
-            list_subproblem_dist = list_subproblem_dist[0:T]
-            matrix = numpy.array(list_subproblem_dist)
+        list_subproblem_dist.sort(key=lambda tup: tup[1])
+        matrix = numpy.array(list_subproblem_dist[0:T])
 
         # Guardo los vecinos mas cercanos en el vector estudiado
-        subproblem.neighbours.append(matrix[:,0].tolist())
+        subproblem.neighbours.extend(matrix[:,0].tolist())
+        break
 
         for aux in subproblems:
             None
@@ -89,35 +89,44 @@ def generar_poblacion(N, search_space):
 def algorithm(N, T, search_space):
     #Apartado: Inicializacion
     subproblems = initialize_subproblems(N)
-    calcular_vecinos(T, N, subproblems)
+    calcular_vecinos(N, T, subproblems)
     poblacion = generar_poblacion(N, search_space)
-    reference_point = initialize_reference_point(poblacion, N)
+    reference_point = initialize_reference_point(poblacion, N) #Las soluciones que salgan de evaluar a la poblacion inicial se guardan como resultado de cada subproblema?
 
-    print(reference_point)
+    #Actualización por cada iteración
+    for subproblem in subproblems:
+        #Reproduccion
+            individuo = operador_evolutivo(subproblems)
+        #Evaluacion
+            solution = evaluar_individuo(individuo, N)
+        #Actualizacion del punto de referencia: Si solucion es mejor actualizo el punto de referencia, entiendo por el enunciado que se compara componente a componete
+            if reference_point[0] > solution[0]:
+                reference_point.insert(0, solution[0])
+            if reference_point[1] > solution[1]:
+                reference_point.insert(1, solution[1])
+        # Actualizacion de vecinos: Por cada vecino del subproblema estudiado vemos si la solucion obtenida es mejor que la existente
+            for neighbour in subproblem.neighbours:
+                n_vector = numpy.array((neighbour.best_solution[0], neighbour.best_solution[1]))
+                s_vector = numpy.array((solution[0], solution[1]))
+                rp_vector = numpy.array((reference_point[0], reference_point[1]))
+                dist_neighbour_to_rp = numpy.linalg.norm(n_vector - rp_vector)
+                dist_solution_to_rp = numpy.linalg.norm(s_vector - rp_vector)
+
+                if dist_solution_to_rp < dist_neighbour_to_rp:
+                    neighbour.best_solution.insert(0, solution[0])
+                    neighbour.best_solution.insert(1, solution[1])
+
     ############################## Visualizacion
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
-        plt.plot(subproblem.x, subproblem.y , 'ro')
+        plt.plot(subproblem.x, subproblem.y, 'ro')
+        plt.plot(subproblem.best_solution[0], subproblem.best_solution[1], 'go')
     plt.show()
-
-    #Actualización por cada iteración #TODO lo mismo aqui un for de los dos sobra
-    for subproblem in subproblems:
-        #Reproduccion
-            individuo = operador_evolutivo(subproblems) #TODO De momento voy a probar que el individuo es una lista de posibles soluciones y no una
-        #Evaluacion
-            solution = evaluar_individuo(individuo)
-        #Actualizacion del punto de referencia: Si solucion es mejor actualizo el punto de referencia
-            if solution < subproblem.best_solution: #TODO Revisar el criterio de "mejor solucion"
-                subproblem.best_solution = solution
-        # Actualizacion de vecinos: Por cada vecino del subproblema estudiado vemos si la solucion obtenida es mejor que la existente
-            for neighbour in subproblem.neighbours:
-                if solution < neighbour.best_solution:
-                    neighbour.best_solution = solution
-
-
 ########################################################################
-def evaluar_individuo(individuo):
-    pass
+def evaluar_individuo(individuo, N):
+    poblacion = []
+    poblacion.append(individuo)
+    return test_zdt3(individuo, poblacion, N)
 
 
 
@@ -138,8 +147,10 @@ def initialize_reference_point(poblacion, N):
 #FIXME Algo mal estoy haciendo fijo
 def test_zdt3(individuo, poblacion, N): # y[0] es el eje x, y[1] es el eje y
     sum = 0
-    i = 2
-    while i < N: #TODO Optimizar esto
+    i = 0
+    #i = 2 Esto lo pone en la formula pero no lo entiendo
+    #while i < N: #TODO Optimizar esto
+    while i < len(poblacion):
         sum = sum + poblacion[i]
         i = i + 1
 
@@ -155,11 +166,13 @@ def test_zdt3(individuo, poblacion, N): # y[0] es el eje x, y[1] es el eje y
 
 # Operador evolutivo
 def operador_evolutivo(subproblems):
-    return None
+    individuo = 4
+    #TODO: Hacerlo bien, ahora mismo es un numero aleatorio
+    return random.uniform(search_space[0], search_space[1])
 ########################################################################################################
-N = 11
+
+N = 5
 T = 3
 search_space = [0, 1]
 
 algorithm(N, T, search_space)
-
