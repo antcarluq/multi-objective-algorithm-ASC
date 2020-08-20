@@ -7,7 +7,7 @@ from subproblem import Subproblem
 
 
 # Metodo inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def initialize_subproblems(n):
+def initialize_subproblems_old_version(n):
     i = 0
     subproblems = []
     a = 0.5
@@ -30,13 +30,13 @@ def initialize_subproblems(n):
 
 
 # Metodo mejorado inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def initialize_subproblems_old_version(n):
+def initialize_subproblems(n):
     i = 1
     subproblems = []
-    a = 1/n
+    a = 1/(n+1)
     subproblems.append(Subproblem(a, 1-a, []))
     while i < n:
-        a = round(a + 1/n, 10)
+        a = round(a + 1/(n+1), 10)
         subproblems.append(Subproblem(round(a, 10), round(1-a, 10), []))
         i = i + 1
 
@@ -62,7 +62,8 @@ def calcular_vecinos(t, subproblems):
         matrix = numpy.array(list_subproblem_dist[0:t])
 
         # Guardo los vecinos mas cercanos en el vector estudiado
-        subproblem.neighbours.extend(matrix[:, 0].tolist())
+        setattr(subproblem, "neighbours", matrix[:, 0].tolist())
+        #subproblem.neighbours.extend(matrix[:, 0].tolist())
 #######################################################################################################
 
 
@@ -99,7 +100,7 @@ def initialize_reference_point(poblacion):
     reference_point.insert(0, y0min)
     reference_point.insert(1, y1min)
     return reference_point
-#######################################################################################################
+########################################################################################################
 
 
 # Formula de ZDT3
@@ -116,7 +117,6 @@ def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos result
     g = 1 + ((9 * sum) / (n - 1))
     h = 1 - math.sqrt(individuo[0] / g) - (individuo[0] / g) * math.sin(10 * math.pi * individuo[0])
     y.insert(1, g * h)
-    print(y)
     return y
 ########################################################################################################
 
@@ -126,11 +126,18 @@ def operador_evolutivo(neighbours):
     # TODO: Hacerlo bien, ahora mismo es un individuo aleatorio
     individuo = []
     for i in range(30):
-        individuo.append(random.uniform(search_space[0], search_space[1]))
+        individuo.append(random.uniform(search_space[0], search_space[1]/2))
 
     return individuo
 ########################################################################################################
 
+# Operador evolutivo
+def operador_evolutivo2(neighbours):
+    individuo = []
+
+
+    return individuo
+########################################################################################################
 
 # Algoritmo multiobjetivo basado en agregacion
 def algorithm(g, n, t, search_space):
@@ -143,6 +150,7 @@ def algorithm(g, n, t, search_space):
 
     # Actualización por cada iteración
     i = 0
+
     while i < g:
         for subproblem in subproblems:
             # Reproduccion
@@ -167,26 +175,31 @@ def algorithm(g, n, t, search_space):
                 dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
 
                 if dist_solution_to_rp < dist_neighbour_to_rp:
-                    neighbour.best_solution.pop(0)
-                    neighbour.best_solution.insert(0, solution[0])
-                    neighbour.best_solution.pop(1)
-                    neighbour.best_solution.insert(1, solution[1])
+                    setattr(neighbour, "best_solution", [solution[0], solution[1]])
 
-    i = i +1
-    # Visualizacion
-    plt.plot(reference_point[0], reference_point[1], 'bo')
-    for subproblem in subproblems:
-        plt.plot(subproblem.x, subproblem.y, 'ro')
-        plt.plot(subproblem.best_solution[0], subproblem.best_solution[1], 'go')
-    plt.show()
+        # Visualizacion
+        plt.plot(reference_point[0], reference_point[1], 'bo')
+        for subproblem in subproblems:
+            plt.plot(subproblem.x, subproblem.y, 'ro')
+            plt.plot(subproblem.best_solution[0], subproblem.best_solution[1], 'go')
+        plt.show()
+        print(i)
+        i = i + 1
+
 ########################################################################################################
 
 
 # Ejecucion
 ########################################################################################################
-g = 100
+g = 500
 n = 20
 t = 2
 search_space = [0, 1]
 
-algorithm(g, n, t, search_space)
+#algorithm(g, n, t, search_space)
+
+subproblems = initialize_subproblems_old_version(n)
+print(subproblems)
+for subproblem in subproblems:
+    plt.plot(subproblem.x, subproblem.y, 'ro')
+plt.show()
