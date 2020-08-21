@@ -124,6 +124,7 @@ def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos result
     g = 1 + ((9 * sum) / (n - 1))
     h = 1 - math.sqrt(gen[0] / g) - (gen[0] / g) * math.sin(10 * math.pi * gen[0])
     y.insert(1, g * h)
+
     return y
 ########################################################################################################
 
@@ -139,20 +140,16 @@ def operador_evolutivo(neighbours):
     gen = []
     k = 0
     while k < len(neighbour_1.individuo.gen):
-        gen.append((neighbour_1.individuo.gen[k] + neighbour_2.individuo.gen[k]) / 2)
+        if random.choice(([0, 1])) == 0:
+            gen.append((neighbour_1.individuo.gen[k] + neighbour_2.individuo.gen[k]) / 2)
+        else:
+            gen.append(random.uniform(search_space[0], search_space[1]))
         k = k + 1
 
     individuo = Individuo(gen, None)
     return individuo
 ########################################################################################################
 
-# Operador evolutivo
-def operador_evolutivo2(neighbours):
-    individuo = []
-
-
-    return individuo
-########################################################################################################
 
 # Algoritmo multiobjetivo basado en agregacion
 def algorithm(g, n, t, search_space):
@@ -162,8 +159,16 @@ def algorithm(g, n, t, search_space):
     generar_poblacion(subproblems, search_space)
     reference_point = initialize_reference_point(subproblems)
 
+    plt.plot(reference_point[0], reference_point[1], 'bo')
+    for subproblem in subproblems:
+        plt.plot(subproblem.x, subproblem.y, 'ro')
+        plt.plot(subproblem.individuo.solution[0], subproblem.individuo.solution[1], 'go')
+    plt.show(block=False)
+    plt.pause(0.01)
+
     # Actualización por cada iteración
     i = 0
+    z = 0 # Fixme no vale pa na
     while i < g:
         for subproblem in subproblems:
             # Reproduccion
@@ -184,32 +189,53 @@ def algorithm(g, n, t, search_space):
                 best_solution_point = numpy.array((neighbour.individuo.solution[0], neighbour.individuo.solution[1]))
                 solution_point = numpy.array((solution[0], solution[1]))
                 rp_point = numpy.array((reference_point[0], reference_point[1]))
-                dist_neighbour_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
-                dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
+                subproblem_point = numpy.array((neighbour.x, neighbour.y))
+                #subproblem_point = numpy.array(((0, 0))) # FIXME Trampa
+                #dist_neighbour_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
+                #dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
+                dist_best_solution_to_subproblem = numpy.linalg.norm(best_solution_point - subproblem_point)
+                dist_solution_to_subproblem = numpy.linalg.norm(solution_point - subproblem_point)
 
-                if dist_solution_to_rp < dist_neighbour_to_rp:
-                    setattr(neighbour, "best_solution", [solution[0], solution[1]])
 
-        # Visualizacion
-        if True:
-            plt.plot(reference_point[0], reference_point[1], 'bo')
-            for subproblem in subproblems:
-                plt.plot(subproblem.x, subproblem.y, 'ro')
-                plt.plot(subproblem.individuo.solution[0], subproblem.individuo.solution[1], 'go')
-            plt.show()
-            #plt.show(block = False)
-            #plt.pause(0.01)
-            print(i)
+                if dist_solution_to_subproblem < dist_best_solution_to_subproblem:
+                    z = z + 1
+                    print("Se ha actualizado la solucion " + str(z) + " veces, en la generacion numero " + str(i))
+                    setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
+                #if dist_solution_to_rp < dist_neighbour_to_rp:
+                    #setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
+
+                # rp_point = numpy.array((reference_point[0], reference_point[1]))
+                # dist_neighbour_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
+                # dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
+
+                # if dist_solution_to_rp < dist_neighbour_to_rp:
+                # setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
+
+                if subproblem == subproblems[0]:
+                    if False:
+                        print("Vuelta " + str(i))
+                        print("Solucion mejor actual: " + str(best_solution_point)  +" y distancia al 0,0: " + str(dist_best_solution_to_subproblem))
+                        print("Potencial Solucion: " + str(solution_point)  +" y distancia al 0,0: " + str(dist_solution_to_subproblem))
+                        print("Solucion real: " + str(subproblems[0].individuo.solution))
+                        print("Solucion real del vecino: " + str(subproblems[0].neighbours[1].individuo.solution))
+                        print("###########################################################")
         i = i + 1
+
+    plt.plot(reference_point[0], reference_point[1], 'bo')
+    for subproblem in subproblems:
+        plt.plot(subproblem.x, subproblem.y, 'ro')
+        plt.plot(subproblem.individuo.solution[0], subproblem.individuo.solution[1], 'go')
+    plt.show(block = False)
+    plt.pause(0.01)
 
 ########################################################################################################
 
 
 # Ejecucion
 ########################################################################################################
-g = 100
+g = 500
 n = 20
-t = 5
+t = 3
 search_space = [0, 1]
 
 algorithm(g, n, t, search_space)

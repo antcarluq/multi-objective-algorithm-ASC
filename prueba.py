@@ -2,15 +2,10 @@ lista1 = [2,3,4,5,6]
 
 import random
 
-listauax = []
+lista = [1,0]
 
-list = list(range(len(lista1)))
-print(list)
-i = random.choice(list)
-list.remove(i)
-j = random.choice(list)
-
-
-print(i)
-print(list)
-print(j)
+while True:
+    if random.choice(([0, 1])) == 0:
+        print("Hola")
+    else:
+        print("Adios")
