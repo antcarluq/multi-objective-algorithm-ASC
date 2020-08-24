@@ -17,16 +17,18 @@ def initialize_subproblems_old_version(n):
         i = 1
         subproblems.append(Subproblem(a, b, []))
     while i < n:
-        aux = 1/n
+        aux = 1 / n
         if i % 2 == 0:
             a = a + aux
-            subproblems.append(Subproblem(round(a, 2), round(1-a, 2), []))
+            subproblems.append(Subproblem(round(a, 2), round(1 - a, 2), []))
         else:
             b = b + aux
-            subproblems.append(Subproblem(round(1-b, 2), round(b, 2), []))
+            subproblems.append(Subproblem(round(1 - b, 2), round(b, 2), []))
         i = i + 1
 
     return subproblems
+
+
 #######################################################################################################
 
 
@@ -34,14 +36,16 @@ def initialize_subproblems_old_version(n):
 def initialize_subproblems(n):
     i = 1
     subproblems = []
-    a = 1/(n+1)
-    subproblems.append(Subproblem(a, 1-a, None, []))
+    a = 1 / (n + 1)
+    subproblems.append(Subproblem(a, 1 - a, None, []))
     while i < n:
-        a = round(a + 1/(n+1), 10)
-        subproblems.append(Subproblem(round(a, 10), round(1-a, 10), None, []))
+        a = round(a + 1 / (n + 1), 10)
+        subproblems.append(Subproblem(round(a, 10), round(1 - a, 10), None, []))
         i = i + 1
 
     return subproblems
+
+
 #######################################################################################################
 
 
@@ -64,17 +68,19 @@ def calcular_vecinos(t, subproblems):
 
         # Guardo los vecinos mas cercanos en el vector estudiado
         setattr(subproblem, "neighbours", matrix[:, 0].tolist())
-        #subproblem.neighbours.extend(matrix[:, 0].tolist())
+        # subproblem.neighbours.extend(matrix[:, 0].tolist())
+
+
 #######################################################################################################
 
 
 # Metodo para generar la población inicial
 def generar_poblacion(subproblems, search_space):
     poblacion = []
-    #random.seed(30)
+    random.seed(30)
     for subproblem in subproblems:
         gen = []
-        for j in range(30): #TODO Poner como variable, estas son las dimensiones
+        for j in range(30):  # TODO Poner como variable, estas son las dimensiones
             gen.append(random.uniform(search_space[0], search_space[1]))
 
         individuo = Individuo(gen, None)
@@ -82,12 +88,16 @@ def generar_poblacion(subproblems, search_space):
 
         poblacion.append(gen)
     return poblacion
+
+
 ########################################################################################################
 
 
 # Metodo para evaluar individualmente a un individuo
 def evaluar_individuo(individuo):
     return test_zdt3(individuo)
+
+
 ########################################################################################################
 
 
@@ -106,11 +116,13 @@ def initialize_reference_point(subproblems):
     reference_point.insert(0, y0min)
     reference_point.insert(1, y1min)
     return reference_point
+
+
 ########################################################################################################
 
 
 # Formula de ZDT3
-def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos resultados grandes en plan (0.2, 4.1) y he visto que la funcion zdt3 no alcanza valores para 1 mayores que 1
+def test_zdt3(individuo):  # FIXME esto tiene que estar mal porque da unos resultados grandes en plan (0.2, 4.1) y he visto que la funcion zdt3 no alcanza valores para 1 mayores que 1
     sum = 0
     gen = individuo.gen
     n = len(gen)
@@ -126,8 +138,30 @@ def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos result
     y.insert(1, (g * h))
 
     return y
+
+
 ########################################################################################################
 
+
+# Operador evolutivo: La media entre dos individuos
+def operador_evolutivo_old(neighbours):
+    list_aux = list(range(len(neighbours)))
+    i = random.choice(list_aux)
+    list_aux.remove(i)
+    j = random.choice(list_aux)
+    neighbour_1 = neighbours[i]
+    neighbour_2 = neighbours[j]
+    gen = []
+    k = 0
+    while k < len(neighbour_1.individuo.gen):
+        if random.choice(([0, 1, 2, 3, 4, 5])) == 0:
+            gen.append((neighbour_1.individuo.gen[k] + neighbour_2.individuo.gen[k]) / 2)
+        else:
+            gen.append(random.uniform(search_space[0], search_space[1]))
+        k = k + 1
+
+    individuo = Individuo(gen, None)
+    return individuo
 
 # Operador evolutivo: La media entre dos individuos
 def operador_evolutivo(neighbours):
@@ -140,7 +174,7 @@ def operador_evolutivo(neighbours):
     gen = []
     k = 0
     while k < len(neighbour_1.individuo.gen):
-        if random.choice(([0, 1])) == 0:
+        if random.choice(([0, 1, 2, 3, 4, 5])) == 0:
             gen.append((neighbour_1.individuo.gen[k] + neighbour_2.individuo.gen[k]) / 2)
         else:
             gen.append(random.uniform(search_space[0], search_space[1]))
@@ -152,6 +186,40 @@ def operador_evolutivo(neighbours):
 
 
 # Algoritmo multiobjetivo basado en agregacion
+def operador_seleccion(neighbour, solution, reference_point):
+    alpha_1 = neighbour.x
+    alpha_2 = neighbour.y
+    y_1 = solution[0]
+    y_2 = solution[1]
+    z_1 = reference_point[0]
+    z_2 = reference_point[1]
+    x_1 = neighbour.individuo.solution[0]
+    x_2 = neighbour.individuo.solution[1]
+    gte_x = max([alpha_1 * abs(x_1 - z_1), alpha_2 * abs(x_2 - z_2)])
+    gte_y = max([alpha_1 * abs(y_1 - z_1), alpha_2 * abs(y_2 - z_2)])
+
+    if gte_y <= gte_x:
+        setattr(neighbour.individuo, "solution", [y_1, y_2])
+
+
+def operador_seleccion_old(neighbour, solution, reference_point):
+    best_solution_point = numpy.array((neighbour.individuo.solution[0], neighbour.individuo.solution[1]))
+    solution_point = numpy.array((solution[0], solution[1]))
+
+    rp_point = numpy.array((reference_point[0], reference_point[1]))
+    dist_best_solution_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
+    dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
+
+    subproblem_point = numpy.array((neighbour.x, neighbour.y))
+    dist_best_solution_to_subproblem = numpy.linalg.norm(best_solution_point - subproblem_point)
+    dist_solution_to_subproblem = numpy.linalg.norm(solution_point - subproblem_point)
+
+    if dist_solution_to_rp < dist_best_solution_to_rp:
+        setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
+    elif dist_solution_to_subproblem < dist_best_solution_to_subproblem:
+        setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
+
+
 def algorithm(g, n, t, search_space):
     # Apartado: Inicializacion
     subproblems = initialize_subproblems(n)
@@ -159,20 +227,23 @@ def algorithm(g, n, t, search_space):
     generar_poblacion(subproblems, search_space)
     reference_point = initialize_reference_point(subproblems)
 
+    pareto_front = numpy.genfromtxt('PF.dat')
+    plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black")
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
-        plt.plot(subproblem.x, subproblem.y, 'ro')
         plt.plot(subproblem.individuo.solution[0], subproblem.individuo.solution[1], 'go')
+    plt.axis((-0.05, 1, -1, 5))
     plt.show(block=False)
-    plt.pause(0.01)
 
     # Actualización por cada iteración
     i = 0
-    z = 0 # Fixme no vale pa na
+    z = 0  # Fixme no vale pa na
     while i < g:
+    #while reference_point[1] > 1.2: #Fixme
         for subproblem in subproblems:
             # Reproduccion
             individuo = operador_evolutivo(subproblem.neighbours)
+            z = z + 1
             # Evaluacion
             solution = evaluar_individuo(individuo)
             # Actualizacion del punto de referencia: Si solucion es mejor actualizo el punto de referencia, entiendo por
@@ -186,48 +257,19 @@ def algorithm(g, n, t, search_space):
             # Actualizacion de vecinos: Por cada vecino del subproblema estudiado vemos si la solucion obtenida es mejor
             # que la existente
             for neighbour in subproblem.neighbours:
-                best_solution_point = numpy.array((neighbour.individuo.solution[0], neighbour.individuo.solution[1]))
-                solution_point = numpy.array((solution[0], solution[1]))
-                rp_point = numpy.array((reference_point[0], reference_point[1]))
-                subproblem_point = numpy.array((neighbour.x, neighbour.y))
-                #dist_neighbour_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
-                #dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
-                dist_best_solution_to_subproblem = numpy.linalg.norm(best_solution_point - rp_point)
-                dist_solution_to_subproblem = numpy.linalg.norm(solution_point - rp_point)
+                operador_seleccion(neighbour, solution, reference_point)
 
 
-                if dist_solution_to_subproblem < dist_best_solution_to_subproblem:
-                    z = z + 1
-                    print("Se ha actualizado la solucion " + str(z) + " veces, en la generacion numero " + str(i))
-                    setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
-                #if dist_solution_to_rp < dist_neighbour_to_rp:
-                    #setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
-
-                # rp_point = numpy.array((reference_point[0], reference_point[1]))
-                # dist_neighbour_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
-                # dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
-
-                # if dist_solution_to_rp < dist_neighbour_to_rp:
-                # setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
-
-                if subproblem == subproblems[0]:
-                    if False:
-                        print("Vuelta " + str(i))
-                        print("Solucion mejor actual: " + str(best_solution_point)  +" y distancia al 0,0: " + str(dist_best_solution_to_subproblem))
-                        print("Potencial Solucion: " + str(solution_point)  +" y distancia al 0,0: " + str(dist_solution_to_subproblem))
-                        print("Solucion real: " + str(subproblems[0].individuo.solution))
-                        print("Solucion real del vecino: " + str(subproblems[0].neighbours[1].individuo.solution))
-                        print("###########################################################")
         i = i + 1
-    print(reference_point[1])
+    print("Iteraciones: " + str(z))
     pareto_front = numpy.genfromtxt('PF.dat')
-    plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black") # Frente Pareto
+    plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black")  # Frente Pareto
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
-        plt.plot(subproblem.x, subproblem.y, 'ro')
         plt.plot(subproblem.individuo.solution[0], subproblem.individuo.solution[1], 'go')
-    plt.show(block = False)
-    plt.pause(0.01)
+    plt.axis((-0.05, 1, -1, 5))
+    plt.show(block=False)
+
 
 ########################################################################################################
 
@@ -236,7 +278,7 @@ def algorithm(g, n, t, search_space):
 ########################################################################################################
 g = 500
 n = 30
-t = 2
+t = 3
 search_space = [0, 1]
 
 algorithm(g, n, t, search_space)
