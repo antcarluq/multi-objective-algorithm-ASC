@@ -71,7 +71,7 @@ def calcular_vecinos(t, subproblems):
 # Metodo para generar la población inicial
 def generar_poblacion(subproblems, search_space):
     poblacion = []
-    random.seed(30)
+    #random.seed(30)
     for subproblem in subproblems:
         gen = []
         for j in range(30): #TODO Poner como variable, estas son las dimensiones
@@ -110,7 +110,7 @@ def initialize_reference_point(subproblems):
 
 
 # Formula de ZDT3
-def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos resultados grandes en plan (0.2, 4.1)
+def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos resultados grandes en plan (0.2, 4.1) y he visto que la funcion zdt3 no alcanza valores para 1 mayores que 1
     sum = 0
     gen = individuo.gen
     n = len(gen)
@@ -123,7 +123,7 @@ def test_zdt3(individuo): # FIXME esto tiene que estar mal porque da unos result
     y.insert(0, gen[0])
     g = 1 + ((9 * sum) / (n - 1))
     h = 1 - math.sqrt(gen[0] / g) - (gen[0] / g) * math.sin(10 * math.pi * gen[0])
-    y.insert(1, g * h)
+    y.insert(1, (g * h))
 
     return y
 ########################################################################################################
@@ -190,11 +190,10 @@ def algorithm(g, n, t, search_space):
                 solution_point = numpy.array((solution[0], solution[1]))
                 rp_point = numpy.array((reference_point[0], reference_point[1]))
                 subproblem_point = numpy.array((neighbour.x, neighbour.y))
-                #subproblem_point = numpy.array(((0, 0))) # FIXME Trampa
                 #dist_neighbour_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
                 #dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
-                dist_best_solution_to_subproblem = numpy.linalg.norm(best_solution_point - subproblem_point)
-                dist_solution_to_subproblem = numpy.linalg.norm(solution_point - subproblem_point)
+                dist_best_solution_to_subproblem = numpy.linalg.norm(best_solution_point - rp_point)
+                dist_solution_to_subproblem = numpy.linalg.norm(solution_point - rp_point)
 
 
                 if dist_solution_to_subproblem < dist_best_solution_to_subproblem:
@@ -220,7 +219,9 @@ def algorithm(g, n, t, search_space):
                         print("Solucion real del vecino: " + str(subproblems[0].neighbours[1].individuo.solution))
                         print("###########################################################")
         i = i + 1
-
+    print(reference_point[1])
+    pareto_front = numpy.genfromtxt('PF.dat')
+    plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black") # Frente Pareto
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
         plt.plot(subproblem.x, subproblem.y, 'ro')
@@ -234,8 +235,8 @@ def algorithm(g, n, t, search_space):
 # Ejecucion
 ########################################################################################################
 g = 500
-n = 20
-t = 3
+n = 30
+t = 2
 search_space = [0, 1]
 
 algorithm(g, n, t, search_space)
