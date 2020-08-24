@@ -1,5 +1,11 @@
 import random
 import math
+
+import scipy as scipy
+
 from subproblem import Individuo
 
-print(max([1-6, 3-5]))
+scipy.stats as ss
+
+X = ss.norm(2000,40)
+print(X)

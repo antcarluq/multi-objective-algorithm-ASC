@@ -165,17 +165,56 @@ def operador_evolutivo_old(neighbours):
 
 # Operador evolutivo: La media entre dos individuos
 def operador_evolutivo(neighbours):
+    f = 0.5 # TODO Poner como variable
     list_aux = list(range(len(neighbours)))
     i = random.choice(list_aux)
     list_aux.remove(i)
     j = random.choice(list_aux)
+    list_aux.remove(j)
+    z = random.choice(list_aux)
     neighbour_1 = neighbours[i]
     neighbour_2 = neighbours[j]
+    neighbour_3 = neighbours[z]
     gen = []
     k = 0
     while k < len(neighbour_1.individuo.gen):
-        if random.choice(([0, 1, 2, 3, 4, 5])) == 0:
-            gen.append((neighbour_1.individuo.gen[k] + neighbour_2.individuo.gen[k]) / 2)
+        if random.choice(([0])) == 0:
+            aux = (neighbour_1.individuo.gen[k] + f * (neighbour_2.individuo.gen[k] - neighbour_3.individuo.gen[k]))
+            if aux < 0:
+                aux = 0
+            elif aux > 1:
+                aux = 1
+            gen.append(aux)
+        else:
+            gen.append(random.uniform(search_space[0], search_space[1]))
+        k = k + 1
+
+    individuo = Individuo(gen, None)
+    return individuo
+########################################################################################################
+
+# Operador evolutivo: La media entre dos individuos
+def operador_evolutivo_2(neighbours):
+    f = 0.5 # TODO Poner como variable
+    list_aux = list(range(len(neighbours)))
+    i = random.choice(list_aux)
+    list_aux.remove(i)
+    j = random.choice(list_aux)
+    list_aux.remove(j)
+    z = random.choice(list_aux)
+    neighbour_1 = neighbours[i]
+    neighbour_2 = neighbours[j]
+    neighbour_3 = neighbours[z]
+    gen = []
+    k = 0
+    while k < len(neighbour_1.individuo.gen):
+        if random.choice(([0])) == 0:
+            aux = (neighbour_1.individuo.gen[k] + f * (neighbour_2.individuo.gen[k] - neighbour_3.individuo.gen[k]))
+            if aux < 0:
+                aux = 0
+            elif aux > 1:
+                aux = 1
+            gen.append(aux)
         else:
             gen.append(random.uniform(search_space[0], search_space[1]))
         k = k + 1
@@ -276,9 +315,9 @@ def algorithm(g, n, t, search_space):
 
 # Ejecucion
 ########################################################################################################
-g = 500
-n = 30
-t = 3
+g = 1000
+n = 100
+t = 25
 search_space = [0, 1]
 
 algorithm(g, n, t, search_space)
