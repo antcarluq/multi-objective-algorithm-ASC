@@ -101,6 +101,8 @@ def evaluar_individuo(individuo, type):
         y = test_cf6(individuo)
     else:
         raise Exception("The type of problem must be zdt3 or cf6")
+
+    setattr(individuo, "solution", [y[0], y[1]]) #FIXME COMPROBAR
     return y
 
 
@@ -206,17 +208,16 @@ def operador_evolutivo_old(neighbours):
 
 
 # Operador evolutivo: Operadores mutación y cruce DE
-def operador_evolutivo(neighbours):
+def operador_evolutivo(subproblem):
+    neighbours = subproblem.neighbours
     f = 0.5  # TODO Poner como variable
     list_aux = list(range(len(neighbours)))
     i = random.choice(list_aux)
     list_aux.remove(i)
     j = random.choice(list_aux)
-    list_aux.remove(j)
-    z = random.choice(list_aux)
-    neighbour_1 = neighbours[i]
-    neighbour_2 = neighbours[j]
-    neighbour_3 = neighbours[z]
+    neighbour_1 = subproblem
+    neighbour_2 = neighbours[i]
+    neighbour_3 = neighbours[j]
     gen = []
     k = 0
     while k < len(neighbour_1.individuo.gen):
@@ -228,10 +229,11 @@ def operador_evolutivo(neighbours):
                 aux = 1
             gen.append(aux)
         else:
-            gen.append(random.uniform(search_space[0], search_space[1]))
+            #gen.append(random.uniform(search_space[0], search_space[1]))
+            gen.append(neighbour_1.individuo.gen[k])
         k = k + 1
     print(gen)
-    individuo = Individuo(gen, None)
+    individuo = Individuo(gen, None) #Deberia de asociar la solucion al individuo
     return individuo
 
 
@@ -256,11 +258,11 @@ def operador_evolutivo_2(neighbours):
 
 
 # Algoritmo multiobjetivo basado en agregacion
-def operador_seleccion(neighbour, solution, reference_point):
+def operador_seleccion(neighbour, reference_point, solution, individuo):
     alpha_1 = neighbour.x
     alpha_2 = neighbour.y
-    y_1 = solution[0]
-    y_2 = solution[1]
+    y_1 = individuo.solution[0]
+    y_2 = individuo.solution[1]
     z_1 = reference_point[0]
     z_2 = reference_point[1]
     x_1 = neighbour.individuo.solution[0]
@@ -269,7 +271,7 @@ def operador_seleccion(neighbour, solution, reference_point):
     gte_y = max([alpha_1 * abs(y_1 - z_1), alpha_2 * abs(y_2 - z_2)])
 
     if gte_y <= gte_x:
-        setattr(neighbour.individuo, "solution", [y_1, y_2])
+        setattr(neighbour, "individuo", individuo)
 
 
 def operador_seleccion_old(neighbour, solution, reference_point):
@@ -337,7 +339,7 @@ def algorithm(g, n, t, search_space, dimension, type):
     for i in tqdm(range(g)):
         for subproblem in subproblems:
             # Reproduccion
-            individuo = operador_evolutivo(subproblem.neighbours)
+            individuo = operador_evolutivo(subproblem)
 
             # Evaluacion
             solution = evaluar_individuo(individuo, type)
@@ -356,13 +358,13 @@ def algorithm(g, n, t, search_space, dimension, type):
             # que la existente
 
             for neighbour in subproblem.neighbours:
-                operador_seleccion(neighbour, solution, reference_point)
+                operador_seleccion(neighbour, reference_point, solution, individuo) # FIXME REFACTORIZAR
 
         # Visualizacion
         i = i + 1
 
     visualization2(subproblems, reference_point, type, solutions)
-    #visualization(subproblems, reference_point, type)
+    visualization(subproblems, reference_point, type)
     print("Iteraciones: " + str(z))
 
 
