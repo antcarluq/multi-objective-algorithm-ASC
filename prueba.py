@@ -8,5 +8,7 @@ from main import *
 from subproblem import Subproblem
 from subproblem import Individual
 
+import os
 
-print(int(2.111))
+result = os.popen("metrics/metrics " + "./metrics/inputfiles/ZDT3/EVAL4000/P40G100/seed1.in").read()
+print(result)

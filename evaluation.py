@@ -1,13 +1,4 @@
-import numpy as numpy
-import random
-import math
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-
 from main import *
-from subproblem import Subproblem
-from subproblem import Individual
-
 
 evaluations = [(40, 100), (80, 50), (100, 40), (40, 250), (100, 100), (200, 50)]
 seeds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
