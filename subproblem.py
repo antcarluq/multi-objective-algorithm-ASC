@@ -1,15 +1,15 @@
 class Subproblem:
 
-    def __init__(self, x, y, individuo, neighbours):
+    def __init__(self, x, y, individual, neighbours):
         self.x = x
         self.y = y
-        self.individuo = individuo
+        self.individual = individual
         self.neighbours = neighbours
 
     def __repr__(self):
-        return "(" + str(self.x) + ", " + str(self.y) + "). " + str(self.individuo) + ". [ " + str(self.neighbours) + "]"
+        return "(" + str(self.x) + ", " + str(self.y) + "). " + str(self.individual) + ". [ " + str(self.neighbours) + "]"
 
-class Individuo:
+class Individual:
 
     def __init__(self, gen, solution):
         self.gen = gen

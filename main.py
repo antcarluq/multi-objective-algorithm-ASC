@@ -5,32 +5,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from subproblem import Subproblem
-from subproblem import Individuo
-
-
-# Metodo inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
-def initialize_subproblems_old_version(n):
-    i = 0
-    subproblems = []
-    a = 0.5
-    b = 0.5
-    if n % 2 == 1:
-        i = 1
-        subproblems.append(Subproblem(a, b, None, []))
-    while i < n:
-        aux = 1 / n
-        if i % 2 == 0:
-            a = a + aux
-            subproblems.append(Subproblem(round(a, 2), round(1 - a, 2), None, []))
-        else:
-            b = b + aux
-            subproblems.append(Subproblem(round(1 - b, 2), round(b, 2), None, []))
-        i = i + 1
-
-    return subproblems
-
-
-#######################################################################################################
+from subproblem import Individual
 
 
 # Metodo mejorado inicilizar una distribucion uniforme de vectores cuyas componenetes sumen la unidad
@@ -45,13 +20,11 @@ def initialize_subproblems(n):
         i = i + 1
 
     return subproblems
-
-
 #######################################################################################################
 
 
 # Metodo para encontrar los T vectores vecinos mas cercanos
-def calcular_vecinos(t, subproblems):
+def calculate_neighbours(t, subproblems):
     for subproblem in subproblems:
         list_subproblem_dist = []
         for potential_neighbour in subproblems:
@@ -70,39 +43,38 @@ def calcular_vecinos(t, subproblems):
         # Guardo los vecinos mas cercanos en el vector estudiado
         setattr(subproblem, "neighbours", matrix[:, 0].tolist())
 
-
 #######################################################################################################
 
 
 # Metodo para generar la población inicial
-def generar_poblacion(subproblems, search_space, dimension):
-    poblacion = []
-    #random.seed(30)
+def generate_population(subproblems, search_space, dimension, seed):
+    population = []
+    random.seed(seed)
     for subproblem in subproblems:
         gen = []
         for j in range(dimension):
             gen.append(random.uniform(search_space[0], search_space[1]))
 
-        individuo = Individuo(gen, None)
-        setattr(subproblem, "individuo", individuo)
+        individual = Individual(gen, None)
+        setattr(subproblem, "individual", individual)
 
-        poblacion.append(gen)
-    return poblacion
+        population.append(gen)
+    return population
 
 
 ########################################################################################################
 
 
 # Metodo para evaluar individualmente a un individuo
-def evaluar_individuo(individuo, type):
+def evaluate_individual(individual, type):
     if type == 'zdt3':
-        y = test_zdt3(individuo)
+        y = test_zdt3(individual)
     elif type == 'cf6':
-        y = test_cf6(individuo)
+        y = test_cf6(individual)
     else:
         raise Exception("The type of problem must be zdt3 or cf6")
 
-    setattr(individuo, "solution", [y[0], y[1]]) #FIXME COMPROBAR
+    setattr(individual, "solution", [y[0], y[1]])
     return y
 
 
@@ -118,17 +90,17 @@ def initialize_reference_point(subproblems, type):
     if type == 'zdt3':
         i = 0
         for subproblem in subproblems:
-            y = test_zdt3(subproblem.individuo)
+            y = test_zdt3(subproblem.individual)
             i = i + 1
-            setattr(subproblem.individuo, "solution", y)
+            setattr(subproblem.individual, "solution", y)
             if y[0] < y0min:
                 y0min = y[0]
             if y[1] < y1min:
                 y1min = y[1]
     elif type == 'cf6':
         for subproblem in subproblems:
-            y = test_cf6(subproblem.individuo)
-            setattr(subproblem.individuo, "solution", y)
+            y = test_cf6(subproblem.individual)
+            setattr(subproblem.individual, "solution", y)
             if y[0] < y0min:
                 y0min = y[0]
             if y[1] < y1min:
@@ -142,8 +114,8 @@ def initialize_reference_point(subproblems, type):
 ########################################################################################################
 
 # Formula de ZDT3
-def test_zdt3(individuo):
-    gen = individuo.gen
+def test_zdt3(individual):
+    gen = individual.gen
     n = len(gen)
     y = []
     f1 = gen[0]
@@ -157,8 +129,8 @@ def test_zdt3(individuo):
 
 
 # Formula de CF6
-def test_cf6(individuo):
-    gen = individuo.gen
+def test_cf6(individual):
+    gen = individual.gen
     n = len(gen)
     sum1 = 0
     sum2 = 0
@@ -186,31 +158,10 @@ def test_cf6(individuo):
 ########################################################################################################
 
 
-# Operador evolutivo: La media entre dos individuos
-def operador_evolutivo_old(neighbours):
-    list_aux = list(range(len(neighbours)))
-    i = random.choice(list_aux)
-    list_aux.remove(i)
-    j = random.choice(list_aux)
-    neighbour_1 = neighbours[i]
-    neighbour_2 = neighbours[j]
-    gen = []
-    k = 0
-    while k < len(neighbour_1.individuo.gen):
-        if random.choice(([0, 1, 2, 3, 4, 5])) == 0:
-            gen.append((neighbour_1.individuo.gen[k] + neighbour_2.individuo.gen[k]) / 2)
-        else:
-            gen.append(random.uniform(search_space[0], search_space[1]))
-        k = k + 1
-
-    individuo = Individuo(gen, None)
-    return individuo
-
-
 # Operador evolutivo: Operadores mutación y cruce DE
-def operador_evolutivo(subproblem):
+def evolutive_operator(subproblem):
     neighbours = subproblem.neighbours
-    f = 0.5  # TODO Poner como variable
+    f = 0.5
     list_aux = list(range(len(neighbours)))
     i = random.choice(list_aux)
     list_aux.remove(i)
@@ -220,76 +171,39 @@ def operador_evolutivo(subproblem):
     neighbour_3 = neighbours[j]
     gen = []
     k = 0
-    while k < len(neighbour_1.individuo.gen):
+    while k < len(neighbour_1.individual.gen):
         if random.choice(([1, 0])) == 0:
-            aux = (neighbour_1.individuo.gen[k] + f * (neighbour_2.individuo.gen[k] - neighbour_3.individuo.gen[k]))
+            aux = (neighbour_1.individual.gen[k] + f * (neighbour_2.individual.gen[k] - neighbour_3.individual.gen[k]))
             if aux < 0:
                 aux = 0
             elif aux > 1:
                 aux = 1
             gen.append(aux)
         else:
-            #gen.append(random.uniform(search_space[0], search_space[1]))
-            gen.append(neighbour_1.individuo.gen[k])
-        k = k + 1
-    print(gen)
-    individuo = Individuo(gen, None) #Deberia de asociar la solucion al individuo
-    return individuo
-
-
-########################################################################################################
-
-# Operador evolutivo: Mutacion uniforme
-def operador_evolutivo_2(neighbours):
-    gen = []
-    k = 0
-    while k < len(neighbours[0].individuo.gen):
-        if random.choice(([0, 1])) == 0:
-            gen.append(random.uniform(search_space[0], search_space[1]))
-        else:
-            gen.append(neighbours[0].individuo.gen[k])
+            #gen.append(random.uniform(search_space[0], search_space[1])) #Probar metodos
+            gen.append(neighbour_1.individual.gen[k])
         k = k + 1
 
-    individuo = Individuo(gen, None)
-    return individuo
-
-
+    individual = Individual(gen, None)
+    return individual
 ########################################################################################################
 
 
 # Algoritmo multiobjetivo basado en agregacion
-def operador_seleccion(neighbour, reference_point, solution, individuo):
+def selection_operator(neighbour, reference_point, individual):
     alpha_1 = neighbour.x
     alpha_2 = neighbour.y
-    y_1 = individuo.solution[0]
-    y_2 = individuo.solution[1]
+    y_1 = individual.solution[0]
+    y_2 = individual.solution[1]
     z_1 = reference_point[0]
     z_2 = reference_point[1]
-    x_1 = neighbour.individuo.solution[0]
-    x_2 = neighbour.individuo.solution[1]
+    x_1 = neighbour.individual.solution[0]
+    x_2 = neighbour.individual.solution[1]
     gte_x = max([alpha_1 * abs(x_1 - z_1), alpha_2 * abs(x_2 - z_2)])
     gte_y = max([alpha_1 * abs(y_1 - z_1), alpha_2 * abs(y_2 - z_2)])
 
     if gte_y <= gte_x:
-        setattr(neighbour, "individuo", individuo)
-
-
-def operador_seleccion_old(neighbour, solution, reference_point):
-    best_solution_point = numpy.array((neighbour.individuo.solution[0], neighbour.individuo.solution[1]))
-    solution_point = numpy.array((solution[0], solution[1]))
-
-    rp_point = numpy.array((reference_point[0], reference_point[1]))
-    dist_best_solution_to_rp = numpy.linalg.norm(best_solution_point - rp_point)
-    dist_solution_to_rp = numpy.linalg.norm(solution_point - rp_point)
-
-    subproblem_point = numpy.array((neighbour.x, neighbour.y))
-    dist_best_solution_to_subproblem = numpy.linalg.norm(best_solution_point - subproblem_point)
-    dist_solution_to_subproblem = numpy.linalg.norm(solution_point - subproblem_point)
-
-    if dist_solution_to_rp < dist_best_solution_to_rp:
-        setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
-    elif dist_solution_to_subproblem < dist_best_solution_to_subproblem:
-        setattr(neighbour.individuo, "solution", [solution[0], solution[1]])
+        setattr(neighbour, "individual", individual)
 
 
 def visualization(subproblems, reference_point, type):
@@ -303,48 +217,30 @@ def visualization(subproblems, reference_point, type):
     plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black")
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
-        plt.plot(subproblem.individuo.solution[0], subproblem.individuo.solution[1], 'go')
+        plt.plot(subproblem.individual.solution[0], subproblem.individual.solution[1], 'go')
     plt.axis((-0.05, 1, -1, 5))
     plt.show(block=False)
 
 
-def visualization2(subproblems, reference_point, type, solutions):
-    if type == 'zdt3':
-        pareto_front = numpy.genfromtxt('ZDT3_PF.dat')
-    elif type == 'cf6':
-        pareto_front = numpy.genfromtxt('CF6_PF.dat')
-    else:
-        raise Exception("The type of problem must be zdt3 or cf6")
-    for solution in solutions:
-        plt.plot(solution[0], solution[1], 'ro')
-
-    plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black")
-    plt.axis((-0.05, 1, -1, 5))
-    plt.show(block=False)
-
-
-def algorithm(g, n, t, search_space, dimension, type):
+def algorithm(g, n, t, search_space, dimension, type, seed):
     # Apartado: Inicializacion
     subproblems = initialize_subproblems(n)
-    calcular_vecinos(t, subproblems)
-    generar_poblacion(subproblems, search_space, dimension)
+    calculate_neighbours(t, subproblems)
+    generate_population(subproblems, search_space, dimension, seed)
     reference_point = initialize_reference_point(subproblems, type)
 
-    visualization(subproblems, reference_point, type)
+    #visualization(subproblems, reference_point, type)
 
     # Actualización por cada iteración
-    z = 0  # Unicamente cuenta las evaluaciones totales
-    i = 0
-    solutions = []
+    i = 0  # Unicamente cuenta las evaluaciones totales
     for i in tqdm(range(g)):
         for subproblem in subproblems:
             # Reproduccion
-            individuo = operador_evolutivo(subproblem)
+            individual = evolutive_operator(subproblem)
 
             # Evaluacion
-            solution = evaluar_individuo(individuo, type)
-            solutions.append(solution)
-            z = z + 1
+            solution = evaluate_individual(individual, type)
+            i = i + 1
             # Actualizacion del punto de referencia
 
             if reference_point[0] > solution[0]:
@@ -358,15 +254,11 @@ def algorithm(g, n, t, search_space, dimension, type):
             # que la existente
 
             for neighbour in subproblem.neighbours:
-                operador_seleccion(neighbour, reference_point, solution, individuo) # FIXME REFACTORIZAR
+                selection_operator(neighbour, reference_point, individual)
 
-        # Visualizacion
-        i = i + 1
-
-    visualization2(subproblems, reference_point, type, solutions)
-    visualization(subproblems, reference_point, type)
-    print("Iteraciones: " + str(z))
-
+    #visualization(subproblems, reference_point, type)
+    print("Iteraciones: " + str(i))
+    return subproblems
 
 ########################################################################################################
 
@@ -379,5 +271,6 @@ t = 125
 type = "zdt3"
 dimension = 30
 search_space = [0, 1]
+seed = 1
 
-algorithm(g, n, t, search_space, dimension, type)
+algorithm(g, n, t, search_space, dimension, type, seed)
