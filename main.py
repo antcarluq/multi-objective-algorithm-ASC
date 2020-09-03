@@ -159,7 +159,7 @@ def test_cf6(individual):
 
 
 # Operador evolutivo: Operadores mutación y cruce DE
-def evolutive_operator(subproblem):
+def evolutive_operator_1(subproblem, probability):
     neighbours = subproblem.neighbours
     f = 0.5
     list_aux = list(range(len(neighbours)))
@@ -172,7 +172,7 @@ def evolutive_operator(subproblem):
     gen = []
     k = 0
     while k < len(neighbour_1.individual.gen):
-        if random.choice(([1, 0])) == 0:
+        if random.choice(probability) == 0:
             aux = (neighbour_1.individual.gen[k] + f * (neighbour_2.individual.gen[k] - neighbour_3.individual.gen[k]))
             if aux < 0:
                 aux = 0
@@ -180,7 +180,6 @@ def evolutive_operator(subproblem):
                 aux = 1
             gen.append(aux)
         else:
-            #gen.append(random.uniform(search_space[0], search_space[1])) #Probar metodos
             gen.append(neighbour_1.individual.gen[k])
         k = k + 1
 
@@ -189,7 +188,40 @@ def evolutive_operator(subproblem):
 ########################################################################################################
 
 
-# Algoritmo multiobjetivo basado en agregacion
+# Operador evolutivo: Operadores mutación y cruce DE
+def evolutive_operator(subproblem, probability):
+    neighbours = subproblem.neighbours
+    f = 0.5
+    list_aux = list(range(len(neighbours)))
+    i = random.choice(list_aux)
+    list_aux.remove(i)
+    j = random.choice(list_aux)
+    neighbour_1 = subproblem
+    neighbour_2 = neighbours[i]
+    neighbour_3 = neighbours[j]
+    gen = []
+    k = 0
+    while k < len(neighbour_1.individual.gen):
+        if random.choice(probability) == 0:
+            aux = (neighbour_1.individual.gen[k] + f * (neighbour_2.individual.gen[k] - neighbour_3.individual.gen[k]))
+            if aux < 0:
+                aux = 0
+            elif aux > 1:
+                aux = 1
+            gen.append(aux)
+        elif random.choice(probability) == 1:
+            gen.append(random.uniform(search_space[0], search_space[1]))
+        else:
+            gen.append(neighbour_1.individual.gen[k])
+        k = k + 1
+
+    individual = Individual(gen, None)
+    return individual
+########################################################################################################
+
+
+
+# Metodo de seleccion de mejores soluciones
 def selection_operator(neighbour, reference_point, individual):
     alpha_1 = neighbour.x
     alpha_2 = neighbour.y
@@ -204,27 +236,36 @@ def selection_operator(neighbour, reference_point, individual):
 
     if gte_y <= gte_x:
         setattr(neighbour, "individual", individual)
+########################################################################################################
 
 
-def visualization(subproblems, reference_point, type):
+# Metodo para visualizar los resultados
+def visualization(subproblems, reference_point, type, g, n, dimension):
     if type == 'zdt3':
+        type_string = "ZDT3"
         pareto_front = numpy.genfromtxt('ZDT3_PF.dat')
     elif type == 'cf6':
         pareto_front = numpy.genfromtxt('CF6_PF.dat')
+        type_string = "CF6" + str(dimension) + "D"
     else:
         raise Exception("The type of problem must be zdt3 or cf6")
 
+    nsgaii_front = numpy.genfromtxt("results/NSGAII/"+ str(type_string) +"/EVAL"+str(g*n)+"/P"+str(n)+"G"+str(g)+"/final_pop_seed1.out")
+
     plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black")
+    plt.plot(nsgaii_front[:, 0], nsgaii_front[:, 1], 'bo', markersize=4, color="red")
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
         plt.plot(subproblem.individual.solution[0], subproblem.individual.solution[1], 'go')
     plt.axis((-0.05, 1, -1, 5))
     plt.show(block=False)
+##############################################################
 
-
+# Algoritmo multiobjetivo basado en agregacion
 def algorithm(g, n, t, search_space, dimension, type, seed):
     # Apartado: Inicializacion
     subproblems = initialize_subproblems(n)
+    print(len(subproblems))
     calculate_neighbours(t, subproblems)
     generate_population(subproblems, search_space, dimension, seed)
     reference_point = initialize_reference_point(subproblems, type)
@@ -232,15 +273,18 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
     #visualization(subproblems, reference_point, type)
 
     # Actualización por cada iteración
-    i = 0  # Unicamente cuenta las evaluaciones totales
+    k = 0  # Unicamente cuenta las evaluaciones totales
     for i in tqdm(range(g)):
         for subproblem in subproblems:
             # Reproduccion
-            individual = evolutive_operator(subproblem)
+            if i < g * 0.25:
+                individual = evolutive_operator(subproblem, ([0, 1]))
+            else:
+                individual = evolutive_operator(subproblem, ([0, 2]))
 
             # Evaluacion
             solution = evaluate_individual(individual, type)
-            i = i + 1
+            k = k + 1
             # Actualizacion del punto de referencia
 
             if reference_point[0] > solution[0]:
@@ -252,25 +296,26 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
 
             # Actualizacion de vecinos: Por cada vecino del subproblema estudiado vemos si la solucion obtenida es mejor
             # que la existente
-
             for neighbour in subproblem.neighbours:
                 selection_operator(neighbour, reference_point, individual)
 
-    #visualization(subproblems, reference_point, type)
-    print("Iteraciones: " + str(i))
+    visualization(subproblems, reference_point, type, g, n, dimension)
+    print("Iteraciones: " + str(k))
     return subproblems
-
 ########################################################################################################
 
 
 # Ejecucion
 ########################################################################################################
-g = 20
+
+evaluations = [(40, 100), (80, 50), (100, 40), (40, 250), (100, 100), (200, 50)]
 n = 500
-t = 125
-type = "zdt3"
+g = 20
+t = int(n*0.4)
+type = "zdt3" #zdt3 o cf6
 dimension = 30
 search_space = [0, 1]
 seed = 1
+
 
 algorithm(g, n, t, search_space, dimension, type, seed)

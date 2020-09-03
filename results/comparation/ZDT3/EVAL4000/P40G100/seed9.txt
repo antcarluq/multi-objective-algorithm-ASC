@@ -11,12 +11,12 @@ Do you want to calculate metrics for a single generation or for all generations?
 
 Enter the coordinate of the reference point corresponding to objective #1: 
 Enter the coordinate of the reference point corresponding to objective #2: Reference point for hypervolume calculation
-ref[1]=6.92693e-310
-ref[2]=6.92693e-310
+ref[1]=6.92207e-310
+ref[2]=6.92207e-310
 
 Front 1 hypervolume: -0.4744558674
 Front 1 spacing: 0.0375915404
-Front 2 hypervolume: 0.0000000000
-Front 2 spacing: 0.0000000000
+Front 2 hypervolume: -0.7762081788
+Front 2 spacing: 0.0113674454
 C(front2,front1)=1.0000000000
 C(front1,front2)=0.0000000000

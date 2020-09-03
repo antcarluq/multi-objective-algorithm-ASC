@@ -49,6 +49,80 @@ def operador_evolutivo_old(neighbours, search_space):
     individual = Individual(gen, None)
     return individual
 
+# Operador evolutivo: Operadores mutación y cruce DE
+def evolutive_operator_2(subproblem, search_space):
+    neighbours = subproblem.neighbours
+    f = 0.5
+    list_aux = list(range(len(neighbours)))
+    i = random.choice(list_aux)
+    list_aux.remove(i)
+    j = random.choice(list_aux)
+    neighbour_1 = subproblem
+    neighbour_2 = neighbours[i]
+    neighbour_3 = neighbours[j]
+    gen = []
+    k = 0
+    while k < len(neighbour_1.individual.gen):
+        if random.choice(([1, 0])) == 0:
+            aux = (neighbour_1.individual.gen[k] + f * (neighbour_2.individual.gen[k] - neighbour_3.individual.gen[k]))
+            if aux < 0:
+                aux = 0
+            elif aux > 1:
+                aux = 1
+            gen.append(aux)
+        else:
+            gen.append(random.uniform(search_space[0], search_space[1]))
+        k = k + 1
+
+    individual = Individual(gen, None)
+    return individual
+########################################################################################################
+
+# Operador evolutivo: Operadores mutación y cruce DE
+def evolutive_operator_3(subproblem):
+    neighbours = subproblem.neighbours
+    f = 0.5
+    list_aux = list(range(len(neighbours)))
+    i = random.choice(list_aux)
+    list_aux.remove(i)
+    j = random.choice(list_aux)
+    neighbour_1 = subproblem
+    neighbour_2 = neighbours[i]
+    neighbour_3 = neighbours[j]
+    gen = []
+    k = 0
+    while k < len(neighbour_1.individual.gen):
+        gen.append((neighbour_1.individual.gen[k] + neighbour_2.individual.gen[k]) / 2)
+        k = k + 1
+
+    individual = Individual(gen, None)
+    return individual
+########################################################################################################
+
+# Operador evolutivo: Operadores mutación y cruce DE
+def evolutive_operator_4(subproblem, search_space):
+    neighbours = subproblem.neighbours
+    f = 0.5
+    list_aux = list(range(len(neighbours)))
+    i = random.choice(list_aux)
+    list_aux.remove(i)
+    j = random.choice(list_aux)
+    neighbour_1 = subproblem
+    neighbour_2 = neighbours[i]
+    neighbour_3 = neighbours[j]
+    gen = []
+    k = 0
+    while k < len(neighbour_1.individual.gen):
+        if random.choice(([0, 1])) == 0:
+            gen.append(random.uniform(search_space[0], search_space[1]))
+        else:
+            gen.append(neighbours[0].individual.gen[k])
+        k = k + 1
+
+    individual = Individual(gen, None)
+    return individual
+################################################################
+
 # Operador evolutivo: Mutacion uniforme
 def operador_evolutivo_2(neighbours, search_space):
     gen = []
