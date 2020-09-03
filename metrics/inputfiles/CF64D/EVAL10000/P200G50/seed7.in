@@ -4,7 +4,7 @@
 results/MyAlgorithm/CF64D/EVAL10000/P200G50/final_pop_seed7.out
 200
 1
-results/NSGAII/CF64D/EVAL10000/P200G50/all_popm_seed7.out
+results/NSGAII/CF64D/EVAL10000/P200G50/allpopm_seed7.out
 200
 50
-0
+1

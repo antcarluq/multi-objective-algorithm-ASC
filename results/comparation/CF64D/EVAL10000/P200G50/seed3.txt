@@ -1,0 +1,14 @@
+1-> New algorithm
+2-> NSGAII
+
+Reference point for hypervolume calculation
+ref[1]=0.8855
+ref[2]=10.4942
+
+Front 1 hypervolume: 19.7563612820
+Front 1 spacing: 0.0214362697
+Front 2 hypervolume: 8.9235946625
+Front 2 spacing: 0.0120308499
+C(front2,front1)=0.3608247423
+C(front1,front2)=0.0714285714
+

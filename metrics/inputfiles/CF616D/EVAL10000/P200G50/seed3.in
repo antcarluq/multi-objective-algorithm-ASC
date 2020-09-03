@@ -4,7 +4,7 @@
 results/MyAlgorithm/CF616D/EVAL10000/P200G50/final_pop_seed3.out
 200
 1
-results/NSGAII/CF616D/EVAL10000/P200G50/all_popm_seed3.out
+results/NSGAII/CF616D/EVAL10000/P200G50/allpopm_seed3.out
 200
 50
-0
+1

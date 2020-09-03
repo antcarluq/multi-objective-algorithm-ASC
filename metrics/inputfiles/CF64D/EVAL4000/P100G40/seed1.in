@@ -4,7 +4,7 @@
 results/MyAlgorithm/CF64D/EVAL4000/P100G40/final_pop_seed1.out
 100
 1
-results/NSGAII/CF64D/EVAL4000/P100G40/all_popm_seed1.out
+results/NSGAII/CF64D/EVAL4000/P100G40/allpopm_seed1.out
 100
 40
-0
+1

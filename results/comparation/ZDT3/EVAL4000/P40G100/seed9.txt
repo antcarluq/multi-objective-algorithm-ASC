@@ -1,22 +1,14 @@
-Do you want to generate metrics of one execution or compare two executions? (1 for one execution) (2 for two executions)
-Do you want to calculate metrics for a single generation or for all generations? (0 for single generation) (1 for all generations)
+1-> New algorithm
+2-> NSGAII
 
- Enter the number of objectives : Enter name of first file with information of evolution (max 30 characters)
+Reference point for hypervolume calculation
+ref[1]=0.845334
+ref[2]=1.17363
 
- Enter the population size in first file : 
- Enter the desired generation in first file: Enter name of second file with information of evolution (max 30 characters)
-
- Enter the population size in second file : 
- Enter the desired generation in second file: \nnDo you want to calculate reference point for hypervolume automatically? (0 for NO) (1 for YES)
-
-Enter the coordinate of the reference point corresponding to objective #1: 
-Enter the coordinate of the reference point corresponding to objective #2: Reference point for hypervolume calculation
-ref[1]=6.92207e-310
-ref[2]=6.92207e-310
-
-Front 1 hypervolume: -0.4744558674
-Front 1 spacing: 0.0375915404
-Front 2 hypervolume: -0.7762081788
+Front 1 hypervolume: 0.7158317877
+Front 1 spacing: 0.0536959502
+Front 2 hypervolume: 0.7998643301
 Front 2 spacing: 0.0113674454
-C(front2,front1)=1.0000000000
+C(front2,front1)=0.7826086957
 C(front1,front2)=0.0000000000
+
