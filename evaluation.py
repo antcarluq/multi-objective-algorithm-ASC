@@ -10,7 +10,7 @@ for evaluation in evaluations:
         generations = evaluation[1]
         population = evaluation[0]
         iterations = generations * population
-        neigbours = int(evaluation[0] * 0.3)
+        neigbours = int(evaluation[0] * 0.4)
         subproblems = algorithm(generations, population, neigbours, [0, 1], 30, "zdt3", seed)
         f = open("results/MyAlgorithm/ZDT3/EVAL" + str(iterations) + "/P" + str(population) + "G" + str(generations) + "/final_pop_seed" + str(seed) + ".out", "w")
         for subproblem in subproblems:
@@ -25,7 +25,7 @@ for evaluation in evaluations:
         generations = evaluation[1]
         population = evaluation[0]
         iterations = generations * population
-        neigbours = int(evaluation[0] * 0.3)
+        neigbours = int(evaluation[0] * 0.4)
         subproblems = algorithm(generations, population, neigbours, [-2, 2], 4, "cf6", seed)
         f = open("results/MyAlgorithm/CF64D/EVAL" + str(iterations) + "/P" + str(population) + "G" + str(generations) + "/final_pop_seed" + str(seed) + ".out", "w")
         for subproblem in subproblems:
@@ -40,7 +40,7 @@ for evaluation in evaluations:
         generations = evaluation[1]
         population = evaluation[0]
         iterations = generations * population
-        neigbours = int(evaluation[0] * 0.3)
+        neigbours = int(evaluation[0] * 0.4)
         subproblems = algorithm(generations, population, neigbours, [-2, 2], 16, "cf6", seed)
         f = open("results/MyAlgorithm/CF616D/EVAL" + str(iterations) + "/P" + str(population) + "G" + str(generations) + "/final_pop_seed" + str(seed) + ".out", "w")
         for subproblem in subproblems:

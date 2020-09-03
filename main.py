@@ -159,37 +159,7 @@ def test_cf6(individual):
 
 
 # Operador evolutivo: Operadores mutación y cruce DE
-def evolutive_operator_1(subproblem, probability):
-    neighbours = subproblem.neighbours
-    f = 0.5
-    list_aux = list(range(len(neighbours)))
-    i = random.choice(list_aux)
-    list_aux.remove(i)
-    j = random.choice(list_aux)
-    neighbour_1 = subproblem
-    neighbour_2 = neighbours[i]
-    neighbour_3 = neighbours[j]
-    gen = []
-    k = 0
-    while k < len(neighbour_1.individual.gen):
-        if random.choice(probability) == 0:
-            aux = (neighbour_1.individual.gen[k] + f * (neighbour_2.individual.gen[k] - neighbour_3.individual.gen[k]))
-            if aux < 0:
-                aux = 0
-            elif aux > 1:
-                aux = 1
-            gen.append(aux)
-        else:
-            gen.append(neighbour_1.individual.gen[k])
-        k = k + 1
-
-    individual = Individual(gen, None)
-    return individual
-########################################################################################################
-
-
-# Operador evolutivo: Operadores mutación y cruce DE
-def evolutive_operator(subproblem, probability):
+def evolutive_operator(subproblem, probability, search_space):
     neighbours = subproblem.neighbours
     f = 0.5
     list_aux = list(range(len(neighbours)))
@@ -218,7 +188,6 @@ def evolutive_operator(subproblem, probability):
     individual = Individual(gen, None)
     return individual
 ########################################################################################################
-
 
 
 # Metodo de seleccion de mejores soluciones
@@ -278,9 +247,9 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
         for subproblem in subproblems:
             # Reproduccion
             if i < g * 0.25:
-                individual = evolutive_operator(subproblem, ([0, 1]))
+                individual = evolutive_operator(subproblem, ([0, 1]), search_space)
             else:
-                individual = evolutive_operator(subproblem, ([0, 2]))
+                individual = evolutive_operator(subproblem, ([0, 2]), search_space)
 
             # Evaluacion
             solution = evaluate_individual(individual, type)
@@ -308,14 +277,14 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
 # Ejecucion
 ########################################################################################################
 
-evaluations = [(40, 100), (80, 50), (100, 40), (40, 250), (100, 100), (200, 50)]
-n = 500
-g = 20
-t = int(n*0.4)
-type = "zdt3" #zdt3 o cf6
-dimension = 30
-search_space = [0, 1]
-seed = 1
+#evaluations = [(40, 100), (80, 50), (100, 40), (40, 250), (100, 100), (200, 50)]
+#n = 500
+#g = 20
+#t = int(n*0.4)
+#type = "zdt3" #zdt3 o cf6
+#dimension = 30
+#search_space = [0, 1]
+#seed = 1
 
 
-algorithm(g, n, t, search_space, dimension, type, seed)
+#algorithm(g, n, t, search_space, dimension, type, seed)

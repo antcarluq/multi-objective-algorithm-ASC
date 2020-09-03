@@ -3,7 +3,6 @@ import os
 evaluations = [(40, 100), (80, 50), (100, 40), (40, 250), (100, 100), (200, 50)]
 seeds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 problems = ["ZDT3", "CF64D", "CF616D"]
-problems = ["ZDT3"]
 
 
 response_one = "2" # Cuantos archivos quiero estudiar
