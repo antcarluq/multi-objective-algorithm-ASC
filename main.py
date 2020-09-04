@@ -286,5 +286,4 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
 #search_space = [0, 1]
 #seed = 1
 
-
 #algorithm(g, n, t, search_space, dimension, type, seed)
