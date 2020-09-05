@@ -207,22 +207,25 @@ def selection_operator(neighbour, reference_point, individual):
         setattr(neighbour, "individual", individual)
 ########################################################################################################
 
+# Metodo para guardar los datos
+def save_data(subproblems, type, g, n , dimension):
+    f = open(str(type) + "_D" + str(dimension) + "_P" + str(n)+ "_G" + str(g) + "_all_pop_seed" + str(seed) + ".out", "w")
+    for subproblem in subproblems:
+        f.write(str(subproblem.individual.solution[0]) + " " + str(subproblem.individual.solution[1]) + "\n")
+    f.close()
+########################################################################################################
 
 # Metodo para visualizar los resultados
 def visualization(subproblems, reference_point, type, g, n, dimension):
     if type == 'zdt3':
-        type_string = "ZDT3"
         pareto_front = numpy.genfromtxt('ZDT3_PF.dat')
     elif type == 'cf6':
         pareto_front = numpy.genfromtxt('CF6_PF.dat')
-        type_string = "CF6" + str(dimension) + "D"
     else:
         raise Exception("The type of problem must be zdt3 or cf6")
 
-    nsgaii_front = numpy.genfromtxt("results/NSGAII/"+ str(type_string) +"/EVAL"+str(g*n)+"/P"+str(n)+"G"+str(g)+"/final_pop_seed1.out")
 
     plt.plot(pareto_front[:, 0], pareto_front[:, 1], 'bo', markersize=4, color="black")
-    plt.plot(nsgaii_front[:, 0], nsgaii_front[:, 1], 'bo', markersize=4, color="red")
     plt.plot(reference_point[0], reference_point[1], 'bo')
     for subproblem in subproblems:
         plt.plot(subproblem.individual.solution[0], subproblem.individual.solution[1], 'go')
@@ -234,7 +237,6 @@ def visualization(subproblems, reference_point, type, g, n, dimension):
 def algorithm(g, n, t, search_space, dimension, type, seed):
     # Apartado: Inicializacion
     subproblems = initialize_subproblems(n)
-    print(len(subproblems))
     calculate_neighbours(t, subproblems)
     generate_population(subproblems, search_space, dimension, seed)
     reference_point = initialize_reference_point(subproblems, type)
@@ -269,7 +271,8 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
                 selection_operator(neighbour, reference_point, individual)
 
     visualization(subproblems, reference_point, type, g, n, dimension)
-    print("Iteraciones: " + str(k))
+    save_data(subproblems, type, g, n , dimension)
+    print("Numero de evaluaciones: " + str(k))
     return subproblems
 ########################################################################################################
 
@@ -277,13 +280,38 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
 # Ejecucion
 ########################################################################################################
 
-#evaluations = [(40, 100), (80, 50), (100, 40), (40, 250), (100, 100), (200, 50)]
-#n = 500
-#g = 20
-#t = int(n*0.4)
-#type = "zdt3" #zdt3 o cf6
-#dimension = 30
-#search_space = [0, 1]
-#seed = 1
+input_type = int(input("Seleccione el problema a resolver (0 para zdt3) (1 para cf6): "))
+if input_type == 0:
+    type = "zdt3"
+    dimension = 30
+    search_space = [0, 1]
+elif input_type == 1:
+    type = "cf6"
+    search_space = [-2, 2]
+    input_dimension = int(input("Seleccione la dimension para cf6 (16 o 4): "))
+    if input_dimension == 16:
+        dimension = 16
+    elif input_dimension == 4:
+        dimension = 4
+    else:
+        raise Exception("La dimension para CF6 debe ser 16 o 4")
+else:
+    raise Exception("El tipo de problema debe ser zdt3 o cf6")
 
-#algorithm(g, n, t, search_space, dimension, type, seed)
+g = int(input("Seleccione el numero de generaciones: "))
+n = int(input("Seleccione el numero de subproblemas: "))
+t = int(input("Seleccione el numero de vecinos (recomendado el 30% del numero de subproblemas): "))
+
+input_seed = int(input("Seleccione la semilla (semilla aleatoria = -1): "))
+
+if input_seed == -1:
+    seed = random.randint(0, 50)
+elif input_seed > 0:
+    seed = input_seed
+else:
+    raise Exception("Semilla incorrecta")
+
+try:
+    algorithm(g, n, t, search_space, dimension, type, seed)
+except ValueError:
+    print("No se ha podido completar la ejecucion, comprueba que los parametros introducidos son correctos")
