@@ -230,11 +230,11 @@ def visualization(subproblems, reference_point, type, g, n, dimension):
     for subproblem in subproblems:
         plt.plot(subproblem.individual.solution[0], subproblem.individual.solution[1], 'go')
     plt.axis((-0.05, 1, -1, 5))
-    plt.show(block=False)
+    plt.show()
 ##############################################################
 
 # Algoritmo multiobjetivo basado en agregacion
-def algorithm(g, n, t, search_space, dimension, type, seed):
+def algorithm(g, n, t, search_space, dimension, type, seed, visual):
     # Apartado: Inicializacion
     subproblems = initialize_subproblems(n)
     calculate_neighbours(t, subproblems)
@@ -270,9 +270,10 @@ def algorithm(g, n, t, search_space, dimension, type, seed):
             for neighbour in subproblem.neighbours:
                 selection_operator(neighbour, reference_point, individual)
 
-    visualization(subproblems, reference_point, type, g, n, dimension)
-    save_data(subproblems, type, g, n , dimension)
-    print("Numero de evaluaciones: " + str(k))
+    if visual == 1:
+        visualization(subproblems, reference_point, type, g, n, dimension)
+        save_data(subproblems, type, g, n, dimension)
+        print("Numero de evaluaciones: " + str(k))
     return subproblems
 ########################################################################################################
 
@@ -312,6 +313,6 @@ else:
     raise Exception("Semilla incorrecta")
 
 try:
-    algorithm(g, n, t, search_space, dimension, type, seed)
+    algorithm(g, n, t, search_space, dimension, type, seed, 1)
 except ValueError:
     print("No se ha podido completar la ejecucion, comprueba que los parametros introducidos son correctos")
